@@ -15,29 +15,24 @@ void setup() {
 void mouseClicked() {
   //only start chain reaction once
   if (!startChainReaction) {
-    startChainReaction = true; 
-    int ran = (int)random(20);
-    balls.get( ran ).startExpand = true;
+    startChainReaction = true;
+    //get nearest ball
+    PVector mouse = new PVector( mouseX, mouseY );
+    Ball nearest = balls.get(0);
+    float nearestDis = PVector.sub( nearest.position, mouse ).mag();
+    for (Ball b : balls) {
+      float dis = PVector.sub( b.position, mouse ).mag();
+      if (dis < nearestDis) {
+        nearest = b;
+        nearestDis = dis;
+      }
+    }
+    nearest.startExpand = true;
   }
 }
 
 void draw() {
   background(51);
-  
-  // look for nearest ball
-  
-  /*
-  for (Ball b : balls) {
-    if (startChainReaction) {
-      PVector one = b.position;
-      PVector two = new PVector( globalx, globaly );
-      if (one.sub(two).mag() < 100) {
-         b.startExpand = true;       
-         globaly = globalx = 10000000;   
-      }   
-    }
-  }
-  */
   for (Ball b : balls) {
     if (b.startExpand) {
       b.checkCollision(balls);
@@ -122,31 +117,13 @@ class Ball {
   }
   
   void checkCollision(ArrayList<Ball> others) {
-
-    // Create list of distances between balls and the minimum distance they'd have to be before being considering "colliding"
-    ArrayList<Float> distanceVectMags = new ArrayList<Float>();
-    ArrayList<Float> minDistances = new ArrayList<Float>();
-    
-    for (Ball b : others ) {
-      // Calculate magnitude of the vector separating the balls
-      distanceVectMags.add( PVector.sub(b.position, position).mag() );
-      // Minimum distance before they are touching
-      minDistances.add( size/2 + b.size/2 );
+    //if the distance between balls is less than the sum of radii, then they are colliding
+    for (Ball b : others) {
+      float dis = PVector.sub(b.position, position).mag();
+      float minDis = size / 2 + b.size / 2;
+      if (dis < minDis)
+        b.startExpand = true;
     }
-
-    for (int i = 0; i < distanceVectMags.size(); i++) {
-      float distanceVectMag = distanceVectMags.get(i);
-      float minDistance = minDistances.get(i);
-      // if ball is part of chain reaction
-      // and within colliding distance with another ball
-      // start the expanding process
-      if (distanceVectMag < minDistance && distanceVectMag != 0 && startExpand) {
-         Ball b = others.get(i);
-         b.startExpand = true;
-      }
-      
-    }
-    
   }
   
 }
