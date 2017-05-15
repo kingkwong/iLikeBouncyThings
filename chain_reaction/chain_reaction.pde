@@ -9,7 +9,6 @@ void setup() {
   for (int i = 0; i < 20; i++) {
     balls.add( new Ball() ); 
   }
-  
 }
 
 void mouseClicked() {
@@ -36,8 +35,7 @@ void draw() {
   for (Ball b : balls) {
     if (b.startExpand) {
       b.checkCollision(balls);
-      b.expand();
-      b.shrink();
+      b.reaction();
     }
     b.update();
     b.display();
@@ -46,9 +44,7 @@ void draw() {
     if (b.size <= 0) {
        b.position = new PVector( -1, -1 ); 
     }
-    
   }
-  
 }
 
 class Ball {
@@ -69,27 +65,20 @@ class Ball {
     doneExpanding = false;
   }
 
-  void expand() {
-     // if ball is starting to expand, stop its movement
-     if (startExpand) {
-        velocity = new PVector(0,0); 
-     }
+  void reaction() {
+     // stop its movement
+     velocity = new PVector(0,0); 
      // expand to 100 more than original size
-     if (size < init_size+100 && !doneExpanding && startExpand) {
+     if (size < init_size+100 && !doneExpanding) {
         size++;
      }
-     // indicate shrink method is ready to start
+     // shrink
      else {
        doneExpanding = true;
+       if (size > 0)
+         size -= 2;
        // red = green = blue = 100; // DEBUG
      }
-  }
-  
-  void shrink() {
-     if (startExpand && doneExpanding && size > 0) {
-        size -= 2;
-     }
-     
   }
 
   // movement
